@@ -1,5 +1,15 @@
-export default function ChatBubble({ message, type }) {
+import { memo } from 'react';
+
+// Memoized for performance optimization
+function ChatBubble({ message, type }) {
   const isUser = type === 'user';
+  
+  // Support markdown-style bold text
+  const formatMessage = (text) => {
+    return text.split('**').map((part, index) => 
+      index % 2 === 1 ? <strong key={index}>{part}</strong> : part
+    );
+  };
   
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4 fade-in`}>
@@ -10,8 +20,10 @@ export default function ChatBubble({ message, type }) {
             : 'bg-white text-black rounded-bl-sm border border-gray-200'
         }`}
       >
-        <p className="text-sm">{message}</p>
+        <p className="text-sm whitespace-pre-line">{formatMessage(message)}</p>
       </div>
     </div>
   );
 }
+
+export default memo(ChatBubble);

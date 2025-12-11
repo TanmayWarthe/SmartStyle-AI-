@@ -4,6 +4,7 @@ import { useCartStore } from '../context/CartContext';
 import CartSummary from '../components/CartSummary';
 import BottomNav from '../components/BottomNav';
 import ChatModal from '../components/ChatModal';
+import Toast from '../components/Toast';
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -15,15 +16,16 @@ export default function Checkout() {
   const [paymentMethod, setPaymentMethod] = useState('upi');
   const [loyaltyApplied, setLoyaltyApplied] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [toast, setToast] = useState(null);
 
   const handleCheckout = () => {
     if (items.length === 0) {
-      alert('Your cart is empty!');
+      setToast({ message: 'Your cart is empty!', type: 'warning' });
       return;
     }
     
     if (!address.trim()) {
-      alert('Please enter delivery address');
+      setToast({ message: 'Please enter delivery address', type: 'warning' });
       return;
     }
     
@@ -48,6 +50,8 @@ export default function Checkout() {
             Continue Shopping
           </button>
         </div>
+        <BottomNav onChatOpen={() => setIsChatOpen(true)} isChatOpen={isChatOpen} />
+        <ChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
       </div>
     );
   }
@@ -165,6 +169,7 @@ export default function Checkout() {
         </div>
       </div>
       
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       <BottomNav onChatOpen={() => setIsChatOpen(true)} isChatOpen={isChatOpen} />
       <ChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>

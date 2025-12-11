@@ -1,18 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCartStore } from '../context/CartContext';
-import productsData from '../data/products.json';
 import BottomNav from '../components/BottomNav';
 import ChatModal from '../components/ChatModal';
+import Toast from '../components/Toast';
+import { productAPI } from '../services/api';
 
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const addItem = useCartStore(state => state.addItem);
   
-  const product = productsData.find(p => p.id === id);
+  const [product, setProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState('');
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState(null);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      setLoading(true);
+      const data = await productAPI.getProductById(id);
+      setProduct(data);
+      setLoading(false);
+    };
+    fetchProduct();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -32,23 +53,18 @@ export default function ProductDetail() {
 
   const handleAddToCart = () => {
     if (!selectedSize) {
-      alert('Please select a size');
+      setToast({ message: 'Please select a size', type: 'warning' });
       return;
     }
     
     if (product.stock[selectedSize] === 0) {
-      alert('This size is out of stock');
+      setToast({ message: 'This size is out of stock', type: 'error' });
       return;
     }
     
     addItem(product, selectedSize);
-    alert(`Added ${product.name} (Size: ${selectedSize}) to cart!`);
+    setToast({ message: `Added ${product.name} to cart!`, type: 'success' });
   };
-
-  // Get matching products for styling suggestions
-  const suggestions = productsData
-    .filter(p => p.id !== product.id && p.category !== product.category)
-    .slice(0, 2);
 
   return (
     <div className="min-h-screen bg-white">
@@ -62,10 +78,23 @@ export default function ProductDetail() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Product Image */}
-          <div className="bg-brand-light rounded-lg p-8">
-            <div className="aspect-square bg-white rounded-lg flex items-center justify-center">
-              <span className="text-9xl">👔</span>
+          <div className="bg-gray-100 rounded-lg p-8">
+            <div className="aspect-square bg-white rounded-lg flex items-center justify-center overflow-hidden">
+              {product.image ? (
+                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-9xl">👔</span>
+              )}
             </div>
+            {product.images && product.images.length > 1 && (
+              <div className="grid grid-cols-4 gap-2 mt-4">
+                {product.images.slice(0, 4).map((img, idx) => (
+                  <div key={idx} className="aspect-square bg-white rounded-lg overflow-hidden cursor-pointer hover:opacity-75 transition">
+                    <img src={img} alt={`${product.name} ${idx + 1}`} className="w-full h-full object-cover" />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Product Info */}
@@ -130,35 +159,9 @@ export default function ProductDetail() {
             </button>
           </div>
         </div>
-
-        {/* AI Styling Suggestions */}
-        <div className="mt-16">
-          <h2 className="text-2xl font-bold text-black mb-6">Complete the Look</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {suggestions.map(product => (
-              <div key={product.id} className="bg-white border border-gray-200 rounded-lg p-6 flex gap-4 hover:shadow-lg transition">
-                <div className="w-24 h-24 bg-brand-light rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-4xl">👔</span>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-black font-semibold mb-2">{product.name}</h3>
-                  <p className="text-black font-bold mb-3">
-                    ₹{product.price.toLocaleString('en-IN')}
-                  </p>
-                  <button
-                    onClick={() => navigate(`/product/${product.id}`)}
-                    className="text-sm text-gray-600 hover:text-black font-medium"
-                  >
-                    View Details →
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
       
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       <BottomNav onChatOpen={() => setIsChatOpen(true)} isChatOpen={isChatOpen} />
       <ChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>

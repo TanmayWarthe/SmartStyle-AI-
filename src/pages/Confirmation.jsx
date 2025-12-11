@@ -3,12 +3,14 @@ import { useEffect, useState } from 'react';
 import { useCartStore } from '../context/CartContext';
 import BottomNav from '../components/BottomNav';
 import ChatModal from '../components/ChatModal';
+import Toast from '../components/Toast';
 
 export default function Confirmation() {
   const location = useLocation();
   const navigate = useNavigate();
   const clearCart = useCartStore(state => state.clearCart);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [toast, setToast] = useState(null);
   
   const orderId = location.state?.orderId || 'ORD' + Math.random().toString(36).substr(2, 9).toUpperCase();
 
@@ -69,7 +71,7 @@ export default function Confirmation() {
             Continue Shopping
           </button>
           <button
-            onClick={() => alert(`Tracking order ${orderId}...`)}
+            onClick={() => setToast({ message: `Tracking order ${orderId}...`, type: 'info' })}
             className="px-8 py-3 bg-white text-black border border-gray-300 rounded-md font-semibold hover:bg-gray-50 transition"
           >
             Track Order
@@ -88,6 +90,7 @@ export default function Confirmation() {
         </div>
       </div>
       
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       <BottomNav onChatOpen={() => setIsChatOpen(true)} isChatOpen={isChatOpen} />
       <ChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>

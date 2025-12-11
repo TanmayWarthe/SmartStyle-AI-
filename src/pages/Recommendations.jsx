@@ -1,15 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
-import productsData from '../data/products.json';
 import BottomNav from '../components/BottomNav';
 import ChatModal from '../components/ChatModal';
+import Toast from '../components/Toast';
+import { productAPI } from '../services/api';
 
 export default function Recommendations() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [priceRange, setPriceRange] = useState('All');
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState(['All']);
+  const [toast, setToast] = useState(null);
   
-  const categories = ['All', 'Jackets', 'Shirts', 'Jeans', 'Blazers', 'Footwear', 'T-Shirts'];
   const priceRanges = [
     { label: 'All', min: 0, max: Infinity },
     { label: 'Under ₹2000', min: 0, max: 2000 },
@@ -17,7 +21,22 @@ export default function Recommendations() {
     { label: 'Above ₹5000', min: 5000, max: Infinity }
   ];
 
-  const filteredProducts = productsData.filter(product => {
+  // Fetch products from API
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const { products: apiProducts } = await productAPI.getAllProducts(30);
+      setProducts(apiProducts);
+      
+      // Get unique categories
+      const uniqueCategories = ['All', ...new Set(apiProducts.map(p => p.category))];
+      setCategories(uniqueCategories);
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
+
+  const filteredProducts = products.filter(product => {
     const categoryMatch = selectedCategory === 'All' || product.category === selectedCategory;
     const range = priceRanges.find(r => r.label === priceRange);
     const priceMatch = product.price >= range.min && product.price < range.max;
@@ -29,6 +48,14 @@ export default function Recommendations() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         <h1 className="text-3xl font-bold text-black mb-8">All Products</h1>
         
+        {loading && (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+          </div>
+        )}
+        
+        {!loading && (
+        <>
         {/* Filters */}
         <div className="bg-white border border-gray-200 p-6 rounded-lg mb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -69,7 +96,7 @@ export default function Recommendations() {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {filteredProducts.map(product => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product.id} product={product} onToast={setToast} />
           ))}
         </div>
 
@@ -78,8 +105,11 @@ export default function Recommendations() {
             <p className="text-gray-600 text-xl">No products found matching your filters.</p>
           </div>
         )}
+        </>
+        )}
       </div>
       
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       <BottomNav onChatOpen={() => setIsChatOpen(true)} isChatOpen={isChatOpen} />
       <ChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>
