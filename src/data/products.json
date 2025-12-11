@@ -1,0 +1,92 @@
+[
+  {
+    "id": "1",
+    "name": "Classic Black Leather Jacket",
+    "price": 8999,
+    "sizes": ["S", "M", "L", "XL"],
+    "stock": {
+      "S": 3,
+      "M": 0,
+      "L": 5,
+      "XL": 2
+    },
+    "category": "Jackets",
+    "image": "/product-1.jpg",
+    "description": "Premium leather jacket with modern fit"
+  },
+  {
+    "id": "2",
+    "name": "White Cotton Shirt",
+    "price": 1999,
+    "sizes": ["S", "M", "L", "XL"],
+    "stock": {
+      "S": 10,
+      "M": 8,
+      "L": 6,
+      "XL": 4
+    },
+    "category": "Shirts",
+    "image": "/product-2.jpg",
+    "description": "Crisp white cotton shirt for any occasion"
+  },
+  {
+    "id": "3",
+    "name": "Dark Denim Jeans",
+    "price": 3499,
+    "sizes": ["S", "M", "L", "XL"],
+    "stock": {
+      "S": 5,
+      "M": 7,
+      "L": 0,
+      "XL": 3
+    },
+    "category": "Jeans",
+    "image": "/product-3.jpg",
+    "description": "Comfortable slim-fit dark denim"
+  },
+  {
+    "id": "4",
+    "name": "Grey Wool Blazer",
+    "price": 12999,
+    "sizes": ["S", "M", "L", "XL"],
+    "stock": {
+      "S": 2,
+      "M": 4,
+      "L": 3,
+      "XL": 1
+    },
+    "category": "Blazers",
+    "image": "/product-4.jpg",
+    "description": "Sophisticated wool blazer for formal events"
+  },
+  {
+    "id": "5",
+    "name": "Black Sneakers",
+    "price": 4999,
+    "sizes": ["7", "8", "9", "10"],
+    "stock": {
+      "7": 6,
+      "8": 8,
+      "9": 5,
+      "10": 3
+    },
+    "category": "Footwear",
+    "image": "/product-5.jpg",
+    "description": "Comfortable black sneakers for everyday wear"
+  },
+  {
+    "id": "6",
+    "name": "White T-Shirt",
+    "price": 999,
+    "sizes": ["S", "M", "L", "XL"],
+    "stock": {
+      "S": 15,
+      "M": 12,
+      "L": 10,
+      "XL": 8
+    },
+    "category": "T-Shirts",
+    "image": "/product-6.jpg",
+    "description": "Essential white cotton t-shirt"
+  }
+]
